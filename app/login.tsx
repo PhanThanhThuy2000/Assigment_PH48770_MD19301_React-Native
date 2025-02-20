@@ -2,8 +2,23 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
+
+// Định nghĩa kiểu RootParamList cho Stack Navigator
+type RootParamList = {
+    Login: undefined;
+    Home: undefined;
+    SignUp: undefined;
+    ResetPass: undefined;
+    Welcome: undefined;
+    Detail: undefined;
+};
+type LoginScreenNavigationProp = StackNavigationProp<RootParamList, 'Login'>;
 
 export default function LoginScreen() {
+    const navigation = useNavigation<LoginScreenNavigationProp>();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -11,8 +26,9 @@ export default function LoginScreen() {
     const paddingTopValue = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
     const handleSignIn = () => {
-        if (email === 'pakdeku@ohyes.com' && password === '123456') {
+        if (email === 'p' && password === '1') {
             Alert.alert('Login Successful', 'Welcome to Lungo!');
+            navigation.replace('Home');
             setError(false);
         } else {
             setError(true);
