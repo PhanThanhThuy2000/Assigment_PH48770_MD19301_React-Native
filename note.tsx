@@ -7,7 +7,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 
 // Định nghĩa kiểu RootParamList cho Stack Navigator
 type RootParamList = {
-    App: undefined;
     Home: undefined;
     SignUp: undefined;
     ResetPass: undefined;
@@ -33,16 +32,15 @@ export default function ProductDetail({ route }: { route: any }) {
     const { item } = route.params;
     const [selectedSize, setSelectedSize] = useState('250gm');
     const [isFavorite, setIsFavorite] = useState(false);
-    const [isCart, setCart] = useState(false);
     const paddingTopValue = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
     // 🧡 Thêm sản phẩm vào danh sách yêu thích
     const addToFavorites = async () => {
         try {
-            const response = await fetch('https://67b6ce1507ba6e590841d413.mockapi.io/favourites', {
+            const response = await fetch('http://your-backend-url.com/favourites', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId: item.id }) // Thay 'USER_ID' bằng ID người dùng thật
+                body: JSON.stringify({ productId: item.id, userId: 'USER_ID' }) // Thay 'USER_ID' bằng ID người dùng thật
             });
 
             if (response.ok) {
@@ -58,15 +56,19 @@ export default function ProductDetail({ route }: { route: any }) {
 
     // 🛒 Thêm sản phẩm vào giỏ hàng
     const addToCart = async () => {
-       try {
-           const response = await fetch('https://67b6ce1507ba6e590841d413.mockapi.io/cart', {
+        try {
+            const response = await fetch('http://your-backend-url.com/cart', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId: item.id }) // Thay 'USER_ID' bằng ID người dùng thật
+                body: JSON.stringify({
+                    productId: item.id,
+                    userId: 'USER_ID', // Thay 'USER_ID' bằng ID thực của người dùng
+                    size: selectedSize,
+                    quantity: 1
+                })
             });
 
             if (response.ok) {
-                setIsFavorite(true);
                 Alert.alert('Thành công', 'Đã thêm vào giỏ hàng!');
             } else {
                 Alert.alert('Lỗi', 'Không thể thêm vào giỏ hàng.');
@@ -81,7 +83,7 @@ export default function ProductDetail({ route }: { route: any }) {
             <ScrollView style={styles.container}>
                 <View style={styles.coffeeCard}>
                     <View style={styles.header}>
-                        <TouchableOpacity onPress={() => navigation.navigate('App')}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
                             <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={addToFavorites}>

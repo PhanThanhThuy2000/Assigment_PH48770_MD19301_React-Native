@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+
 type RootParamList = {
     Home: undefined;
     SignUp: undefined;
@@ -90,7 +91,7 @@ export default function CartScreen() {
 
             {/* Bottom Navigation */}
              {/* Bottom Navigation */}
-                        <View style={styles.bottomNavigation}>
+                        {/* <View style={styles.bottomNavigation}>
                             <TouchableOpacity style={styles.navItem} onPress={() => navigation.replace('Home')}>
                                 <Image source={require('../assets/images/home.png')} />
                             </TouchableOpacity>
@@ -103,7 +104,7 @@ export default function CartScreen() {
                             <TouchableOpacity style={styles.navItem}>
                                 <Image source={require('../assets/images/noti.png')} />
                             </TouchableOpacity>
-                        </View>
+                        </View> */}
         </SafeAreaView>
     );
 }

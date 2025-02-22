@@ -94,7 +94,7 @@ export default function FavoritesScreen() {
                 />
             </ScrollView>
               {/* Bottom Navigation */}
-                <View style={styles.bottomNavigation}>
+                {/* <View style={styles.bottomNavigation}>
                     <TouchableOpacity style={styles.navItem} onPress={() => navigation.replace('Home')}>
                         <Image source={require('../assets/images/home.png')} />
                     </TouchableOpacity>
@@ -107,7 +107,7 @@ export default function FavoritesScreen() {
                     <TouchableOpacity style={styles.navItem}>
                         <Image source={require('../assets/images/noti.png')} />
                     </TouchableOpacity>
-                </View>
+                </View> */}
         </SafeAreaView>
     );
 }
