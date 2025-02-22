@@ -1,17 +1,17 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import 'expo-router/entry';
-import LoginScreen from './login';
-import SignUpScreen from './Register';
-import DetailScreen from './ProductDetail';
-import HomeScreen from './home';
-import CartScreen from './cart';
-import FavouriteScreen from './favourite';
-import SettingScreen from './setting';
-import OrderHistoryScreen from './OrderHistory';
-import EditAccountScreen from './editAccount';
+import LoginScreen from './screens/LoginScreen';
+import SignUpScreen from './screens/RegisterScreen';
+import DetailScreen from './screens/ProductDetailScreen';
+import HomeScreen from './screens/HomeScreen';
+import CartScreen from './screens/CartScreen';
+import FavouriteScreen from './screens/FavouriteScreen';
+import SettingScreen from './screens/SettingScreen';
+import OrderHistoryScreen from './screens/OrderHistoryScreen';
+import EditAccountScreen from './screens/EditAccountScreen';
 import AppScreen from './app';
-import AdminScreen from './admin';
+import AdminScreen from './screens/admin/AdminProduct';
 
 const Stack = createStackNavigator();
 

@@ -1,10 +1,10 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import HomeScreen from "./home";
-import CartScreen from "./cart";
-import FavouriteScreen from "./favourite";
-import OrderHistoryScreen from "./OrderHistory";
+import HomeScreen from "../screens/HomeScreen";
+import CartScreen from "../screens/CartScreen";
+import FavouriteScreen from "../screens/FavouriteScreen";
+import OrderHistoryScreen from "../screens/OrderHistoryScreen";
 
 // Tạo Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
