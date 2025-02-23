@@ -5,7 +5,6 @@ import {
     TextInput,
     TouchableOpacity,
     FlatList,
-    ScrollView,
     Image,
     StyleSheet,
     SafeAreaView,
@@ -52,7 +51,26 @@ export default function CoffeeApp() {
     const [filteredItems, setFilteredItems] = useState<product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
-    
+    useEffect(() => {
+        let filtered = products;
+
+        // Lọc theo danh mục
+        if (selectedCategory.toLowerCase() !== 'all') {
+            filtered = filtered.filter(item =>
+                item.categoryId.toLowerCase() === selectedCategory.toLowerCase()
+            );
+        }
+
+        // Lọc theo từ khóa tìm kiếm
+        if (search.trim() !== '') {
+            filtered = filtered.filter(item =>
+                item.name.toLowerCase().includes(search.toLowerCase())
+            );
+        }
+
+        setFilteredItems(filtered);
+    }, [search, selectedCategory, products]);
+
 
     useEffect(() => {
         const fetchCoffeeData = async () => {
@@ -82,112 +100,105 @@ export default function CoffeeApp() {
         fetchCategories();
     }, []);
 
-   useEffect(() => {
-
-
-    if (selectedCategory.toLowerCase() === 'all') {
-        setFilteredItems(products);
-    } else {
-        const filtered = products.filter(item => {
-            console.log(`Checking item ${item.name}:`, item.categoryId);
-            return item.categoryId.toLowerCase() === selectedCategory.toLowerCase();
-        });
-        setFilteredItems(filtered);
-    }
-}, [selectedCategory, products]);
-
-    const paddingTopValue = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+    useEffect(() => {
+        if (selectedCategory.toLowerCase() === 'all') {
+            setFilteredItems(products);
+        } else {
+            const filtered = products.filter(item => {
+                console.log(`Checking item ${item.name}:`, item.categoryId);
+                return item.categoryId.toLowerCase() === selectedCategory.toLowerCase();
+            });
+            setFilteredItems(filtered);
+        }
+    }, [selectedCategory, products]);
 
     return (
-        
-        <SafeAreaView style={[styles.safeArea, { paddingTop: paddingTopValue }]}>
-            <ScrollView style={styles.container}>
-                <View style={styles.container}>
-                    <View style={styles.headerContainer}>
-                        <TouchableOpacity style={styles.logo} onPress={() => navigation.replace('Setting')}>
-                            <MaterialIcons name="menu" size={28} color="#fff" />
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <MaterialIcons name="account-circle" size={28} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
+        <SafeAreaView style={[styles.safeArea]}>
+            <View style={styles.container}>
+                <View style={styles.headerContainer}>
+                    <TouchableOpacity onPress={() => navigation.replace('Setting')}>
+                        <MaterialIcons name="menu" size={28} color="#fff" />
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <MaterialIcons name="account-circle" size={28} color="#fff" />
+                    </TouchableOpacity>
                 </View>
-                <View style={styles.container}>
-                    <Text style={styles.title}>Find the best coffee for you</Text>
-                    <View style={styles.searchContainer}>
-                        <MaterialIcons name="search" size={20} color="#aaa" style={styles.searchIcon} />
-                        <TextInput
-                            
-                            placeholder="Find Your Coffee..."
-                            placeholderTextColor="#aaa"
-                            value={search}
-                            onChangeText={setSearch}
-                        />
-                    </View>
+            </View>
+            <View style={styles.container}>
+                <Text style={styles.title}>Find the best coffee for you</Text>
+                <View style={styles.searchContainer}>
+                    <MaterialIcons name="search" size={20} color="#aaa" style={styles.searchIcon} />
+                    <TextInput
 
+                        placeholder="Find Your Coffee..."
+                        placeholderTextColor="#aaa"
+                        value={search}
+                        onChangeText={setSearch}
+                    />
+                </View>
+
+                <FlatList
+                    data={categories}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={(item) => item.id}
+                    ListFooterComponent={<View style={{ height: 38 }} />} // Tạo khoảng trống ở cuối danh sách
+                    renderItem={({ item }) => (
+                        <TouchableOpacity 
+                            style={[
+                                styles.categoryButton,
+                                selectedCategory === item.id && styles.selectedCategory
+                            ]}
+                            onPress={() => setSelectedCategory(item.id)} // Lưu ID danh mục thay vì name
+                        >
+                            <Text style={styles.categoryText}>{item.name}</Text>
+                        </TouchableOpacity>
+                    )}
+                />
+
+
+                {loading ? (
+                    <ActivityIndicator size="large" color="#c67d4d" style={{ marginTop: 20 }} />
+                ) : (
                     <FlatList
-                        data={categories}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
+                        data={filteredItems}
+                        numColumns={2}
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (
-                            <TouchableOpacity
-                                style={[
-                                    styles.categoryButton,
-                                    selectedCategory === item.id && styles.selectedCategory
-                                ]}
-                                onPress={() => setSelectedCategory(item.id)} // Lưu ID danh mục thay vì name
+                            <TouchableOpacity 
+                                style={styles.coffeeCard}
+                                onPress={() => navigation.navigate('ProductDetail', { item })} // Chuyển dữ liệu sang màn hình ProductDetail
                             >
-                                <Text style={styles.categoryText}>{item.name}</Text>
+                                <Image source={{ uri: item.image }} style={styles.coffeeImage} />
+                                <Text style={styles.coffeeName}>{item.name}</Text>
+                                <Text style={styles.coffeeDescription}>{item.description}</Text>
+                                <Text style={styles.coffeePrice}>${item.price}</Text>
+                                <TouchableOpacity style={styles.addButton}>
+                                    <MaterialCommunityIcons name="plus" size={20} color="#fff" />
+                                </TouchableOpacity>
                             </TouchableOpacity>
                         )}
                     />
 
+                )}
+            </View>
 
-                    {loading ? (
-                        <ActivityIndicator size="large" color="#c67d4d" style={{ marginTop: 20 }} />
-                    ) : (
-                            <FlatList
-                                data={filteredItems}
-                                numColumns={2}
-                                keyExtractor={(item) => item.id}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity
-                                        style={styles.coffeeCard}
-                                        onPress={() => navigation.navigate('ProductDetail', { item })} // Chuyển dữ liệu sang màn hình ProductDetail
-                                    >
-                                        <Image source={{ uri: item.image }} style={styles.coffeeImage} />
-                                        <Text style={styles.coffeeName}>{item.name}</Text>
-                                        <Text style={styles.coffeeDescription}>{item.description}</Text>
-                                        <Text style={styles.coffeePrice}>{item.price}</Text>
-                                        <TouchableOpacity style={styles.addButton}>
-                                            <MaterialCommunityIcons name="plus" size={20} color="#fff" />
-                                        </TouchableOpacity>
-                                    </TouchableOpacity>
-                                )}
-                            />
-
-                    )}
-                </View>
-            </ScrollView>
-    
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: { backgroundColor: '#1a1a1a', padding: 10 },
-    safeArea: { flex: 1, backgroundColor: 'white' },
-    logo: {
-        width: 40,
-        height: 40,
-    },
+        safeArea: {
+            flex: 1,
+            backgroundColor: '#1a1a1a',
+            paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
+        },
+
     headerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
-        marginHorizontal: 10
     },
     title: { fontSize: 24, fontWeight: 'bold', color: '#fff', marginBottom: 15 },
     searchContainer: {
@@ -201,15 +212,18 @@ const styles = StyleSheet.create({
     searchIcon: { marginRight: 10 },
     categoryButton: {
         marginRight: 10,
-        paddingVertical: 5,
+        paddingVertical: 8,
         paddingHorizontal: 15,
         borderRadius: 20,
         backgroundColor: '#2a2a2a'
     },
     selectedCategory: { backgroundColor: '#c67d4d' },
-    categoryText: { color: '#fff' },
+    categoryText: {
+        color: '#fff',
+    },
     coffeeCard: {
         flex: 1,
+        marginBottom: 10,
         margin: 5,
         backgroundColor: '#2a2a2a',
         borderRadius: 15,

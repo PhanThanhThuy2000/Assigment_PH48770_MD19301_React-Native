@@ -31,7 +31,7 @@ type product = {
 export default function ProductDetail({ route }: { route: any }) {
     const navigation = useNavigation<ProductDetailScreenNavigationProp>();
     const { item } = route.params;
-    const [selectedSize, setSelectedSize] = useState('250gm');
+    const [selectedSize, setSelectedSize] = useState('S');
     const [isFavorite, setIsFavorite] = useState(false);
     const [isCart, setCart] = useState(false);
     const paddingTopValue = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
@@ -39,10 +39,23 @@ export default function ProductDetail({ route }: { route: any }) {
     // 🧡 Thêm sản phẩm vào danh sách yêu thích
     const addToFavorites = async () => {
         try {
+            // Lấy danh sách yêu thích từ API
+            const checkResponse = await fetch(`https://67b6ce1507ba6e590841d413.mockapi.io/favourites`);
+            const favorites: { productId: string }[] = await checkResponse.json(); // Định nghĩa kiểu dữ liệu cho danh sách yêu thích
+
+            // Kiểm tra nếu sản phẩm đã tồn tại trong danh sách yêu thích
+            const isExist = favorites.some((fav: { productId: string }) => fav.productId === item.id);
+
+            if (isExist) {
+                Alert.alert('Thông báo', 'Sản phẩm đã có trong danh sách yêu thích!');
+                return;
+            }
+
+            // Nếu chưa tồn tại, tiến hành thêm vào danh sách yêu thích
             const response = await fetch('https://67b6ce1507ba6e590841d413.mockapi.io/favourites', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId: item.id }) // Thay 'USER_ID' bằng ID người dùng thật
+                body: JSON.stringify({ productId: item.id })
             });
 
             if (response.ok) {
@@ -56,26 +69,50 @@ export default function ProductDetail({ route }: { route: any }) {
         }
     };
 
+
+
+
     // 🛒 Thêm sản phẩm vào giỏ hàng
     const addToCart = async () => {
-       try {
-           const response = await fetch('https://67b6ce1507ba6e590841d413.mockapi.io/cart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId: item.id }) // Thay 'USER_ID' bằng ID người dùng thật
-            });
+        try {
+            // Lấy danh sách sản phẩm trong giỏ hàng
+            const checkResponse = await fetch(`https://67b6ce1507ba6e590841d413.mockapi.io/cart`);
+            const cartItems: { id: string, productId: string, size: string, quantity: number }[] = await checkResponse.json();
 
-            if (response.ok) {
-                setIsFavorite(true);
-                Alert.alert('Thành công', 'Đã thêm vào giỏ hàng!');
+            // Kiểm tra xem sản phẩm đã có trong giỏ hàng với cùng kích thước chưa
+            const existingItem = cartItems.find((cartItem) => cartItem.productId === item.id && cartItem.size === selectedSize);
+
+            if (existingItem) {
+                // Nếu sản phẩm đã tồn tại với cùng kích thước, tăng số lượng lên 1
+                const response = await fetch(`https://67b6ce1507ba6e590841d413.mockapi.io/cart/${existingItem.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantity: existingItem.quantity + 1 })
+                });
+
+                if (response.ok) {
+                    Alert.alert('Thành công', `Đã cập nhật số lượng (${selectedSize}) trong giỏ hàng!`);
+                } else {
+                    Alert.alert('Lỗi', 'Không thể cập nhật giỏ hàng.');
+                }
             } else {
-                Alert.alert('Lỗi', 'Không thể thêm vào giỏ hàng.');
+                // Nếu sản phẩm chưa có với kích thước này, thêm mới vào giỏ hàng
+                const response = await fetch('https://67b6ce1507ba6e590841d413.mockapi.io/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId: item.id, size: selectedSize, quantity: 1 })
+                });
+
+                if (response.ok) {
+                    Alert.alert('Thành công', `Đã thêm ${selectedSize} vào giỏ hàng!`);
+                } else {
+                    Alert.alert('Lỗi', 'Không thể thêm vào giỏ hàng.');
+                }
             }
         } catch (error) {
             console.error('Lỗi khi thêm vào giỏ hàng:', error);
         }
     };
-
     return (
         <SafeAreaView style={[styles.safeArea, { paddingTop: paddingTopValue }]}>
             <ScrollView style={styles.container}>
@@ -103,7 +140,7 @@ export default function ProductDetail({ route }: { route: any }) {
                 <View style={styles.infoContainer}>
                     <Text style={styles.sectionTitle}>Size</Text>
                     <View style={styles.sizeContainer}>
-                        {['250gm', '500gm', '1000gm'].map((size) => (
+                        {['S', 'M', 'L'].map((size) => (
                             <TouchableOpacity
                                 key={size}
                                 style={[styles.sizeOption, selectedSize === size && styles.selectedSizeOption]}
