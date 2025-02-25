@@ -91,7 +91,7 @@ export default function ProductDetail({ route }: { route: any }) {
                 });
 
                 if (response.ok) {
-                    Alert.alert('Thành công', `Đã cập nhật số lượng (${selectedSize}) trong giỏ hàng!`);
+                    Alert.alert('Thành công', `Đã thêm sản phẩm vào giỏ hàng!`);
                 } else {
                     Alert.alert('Lỗi', 'Không thể cập nhật giỏ hàng.');
                 }
@@ -104,7 +104,7 @@ export default function ProductDetail({ route }: { route: any }) {
                 });
 
                 if (response.ok) {
-                    Alert.alert('Thành công', `Đã thêm ${selectedSize} vào giỏ hàng!`);
+                    Alert.alert('Thành công', `Đã thêm sản phẩm vào giỏ hàng!`);
                 } else {
                     Alert.alert('Lỗi', 'Không thể thêm vào giỏ hàng.');
                 }

@@ -13,8 +13,6 @@ import {
 } from "react-native";
 import axios, { AxiosError } from "axios";
 import { Picker } from "@react-native-picker/picker";
-// import * as ImagePicker from "react-native-image-picker";
-import * as ImagePicker from "expo-image-picker";
 const API_URL = "https://67b6ce1507ba6e590841d413.mockapi.io/products";
 const CATEGORY_API_URL = "https://67b6ce1507ba6e590841d413.mockapi.io/categories";
 
@@ -75,34 +73,6 @@ const AdminProductScreen = () => {
         }
     };
 
-    const handleImagePick = async () => {
-        console.error("Lỗi khi lấy danh mục:");
-        // Yêu cầu quyền truy cập thư viện ảnh
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-       
-
-        if (status !== "granted") {
-            Alert.alert("Lỗi", "Ứng dụng cần quyền truy cập ảnh để chọn ảnh!");
-            return;
-        }
-
-        // Mở thư viện ảnh
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images, // ✅ Vẫn hoạt động
-            allowsEditing: true,
-            quality: 1,
-        });
-
-
-
-
-        if (!result.canceled) {
-            setProductData({ ...productData, image: result.assets[0].uri });
-        }
-    };
-
-
-
     // Mở modal (chỉnh sửa hoặc thêm mới)
     const handleOpenDialog = (product: Product | null = null) => {
         if (product) {
@@ -135,17 +105,75 @@ const AdminProductScreen = () => {
         }
     };
 
+
+    // HÀM XÓA
+    const handleDelete = async (product: Product) => {
+        Alert.alert("Xác nhận xóa", "Bạn có chắc chắn muốn xóa sản phẩm này không?", [
+            { text: "Hủy", style: "cancel" },
+            {
+                text: "Xóa",
+                onPress: async () => {
+                    try {
+                        console.log("Đang xóa sản phẩm có ID:", product.id);
+                        console.log("Đường dẫn API:", `https://67b6ce1507ba6e590841d413.mockapi.io/categories/${product.categoryId}/products/${product.id}`);
+
+                        await axios.delete(`https://67b6ce1507ba6e590841d413.mockapi.io/categories/${product.categoryId}/products/${product.id}`);
+
+                        fetchData(); // Cập nhật danh sách sau khi lưu
+
+                    } catch (error) {
+                        const axiosError = error as AxiosError;
+                        if (axiosError.response?.status === 404) {
+                            Alert.alert("Lỗi", "Sản phẩm không tồn tại hoặc đã bị xóa!");
+                        } else {
+                            console.error("Lỗi khi xóa sản phẩm:", error);
+                            Alert.alert("Lỗi", "Không thể xóa sản phẩm, vui lòng thử lại sau.");
+                        }
+                    }
+                },
+                style: "destructive",
+            },
+        ]);
+    };
+
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Quản lý sản phẩm</Text>
+
+            <FlatList
+                data={products}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={({ item }) => (
+                    <View style={styles.productItem}>
+                        <Image source={{ uri: item.image }} style={styles.productImage} />
+                        <View style={styles.productInfo}>
+                            <Text style={styles.name}>{item.name}</Text>
+                            <Text style={styles.price}>{item.price} VNĐ</Text>
+                            <Text style={styles.description}>{item.description}</Text>
+                        </View>
+                        <View style={styles.actions}>
+                            <TouchableOpacity style={styles.editButton} onPress={() => handleOpenDialog(item)}>
+                                <Text style={styles.buttonText}>Sửa</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
+                                <Text style={styles.buttonText}>Xóa</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )}
+            />
+
             <TouchableOpacity style={styles.addButton} onPress={() => handleOpenDialog()}>
                 <Text style={styles.addButtonText}>Thêm sản phẩm</Text>
             </TouchableOpacity>
 
+            {/* Modal Thêm/Sửa Sản phẩm */}
             <Modal visible={modalVisible} animationType="slide" transparent>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>{editingProduct ? "Sửa sản phẩm" : "Thêm sản phẩm"}</Text>
+
                         <TextInput
                             style={styles.input}
                             value={productData.name}
@@ -165,10 +193,32 @@ const AdminProductScreen = () => {
                             onChangeText={(text) => setProductData({ ...productData, description: text })}
                             placeholder="Mô tả sản phẩm"
                         />
-                        <TouchableOpacity style={styles.imagePickerButton} onPress={handleImagePick}>
-                            <Text style={styles.buttonText}>Chọn ảnh</Text>
-                        </TouchableOpacity>
-                        {productData.image ? <Image source={{ uri: productData.image }} style={styles.productImage} /> : null}
+                        <TextInput
+                            style={styles.input}
+                            value={productData.image}
+                            onChangeText={(text) => setProductData({ ...productData, image: text })}
+                            placeholder="Link ảnh sản phẩm"
+                        />
+                        <TextInput
+                            style={styles.input}
+                            value={productData.size}
+                            onChangeText={(text) => setProductData({ ...productData, size: text })}
+                            placeholder="Kích thước"
+                        />
+
+                        {/* Dropdown chọn danh mục */}
+                        <Picker
+                            selectedValue={productData.categoryId}
+                            onValueChange={(itemValue: string) =>
+                                setProductData({ ...productData, categoryId: itemValue })
+                            }
+                        >
+                            <Picker.Item label="Chọn danh mục" value="" />
+                            {categories.map((category) => (
+                                <Picker.Item key={category.id} label={category.name} value={category.id} />
+                            ))}
+                        </Picker>
+
                         <Button title="Lưu" onPress={handleSave} />
                         <Button title="Hủy" color="red" onPress={() => setModalVisible(false)} />
                     </View>
@@ -181,15 +231,44 @@ const AdminProductScreen = () => {
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" },
     title: { fontSize: 22, fontWeight: "bold", textAlign: "center", marginBottom: 15 },
+    productItem: { flexDirection: "row", backgroundColor: "#fff", padding: 10, marginBottom: 10, borderRadius: 10 },
+    productImage: { width: 80, height: 80, borderRadius: 10, marginRight: 10 },
+    productInfo: { flex: 6 },
+    name: { fontSize: 18, fontWeight: "bold" },
+    price: { fontSize: 16, fontWeight: "bold", color: "#28a745" },
+    description: { fontSize: 14, color: "#555", marginTop: 5 },
+    actions: {
+        flex: 2,
+        alignItems: "center", // Căn giữa nút trong hàng
+        justifyContent:"space-around"
+    },
+    editButton: {
+        backgroundColor: "#FFA500",
+        paddingVertical: 6,  // Giảm chiều cao
+        paddingHorizontal: 10, // Giảm chiều rộng
+        borderRadius: 5,
+        minWidth: 60, // Đặt kích thước tối thiểu
+        alignItems: "center",
+    },
+    deleteButton: {
+        backgroundColor: "#dc3545",
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+        minWidth: 60,
+        alignItems: "center",
+    },
+    buttonText: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 14, // Giảm font chữ
+    },
     addButton: { backgroundColor: "#008000", padding: 12, borderRadius: 8, alignItems: "center", marginTop: 10 },
     addButtonText: { color: "#fff", fontWeight: "bold" },
     modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
     modalContent: { width: "90%", backgroundColor: "#fff", padding: 20, borderRadius: 10 },
     modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 15, textAlign: "center" },
     input: { borderWidth: 1, borderColor: "#ccc", padding: 10, borderRadius: 8, marginBottom: 10, width: "100%" },
-    imagePickerButton: { backgroundColor: "#007bff", padding: 10, borderRadius: 5, alignItems: "center", marginBottom: 10 },
-    buttonText: { color: "#fff", fontWeight: "bold" },
-    productImage: { width: 100, height: 100, borderRadius: 10, marginTop: 10 },
 });
 
 export default AdminProductScreen;
