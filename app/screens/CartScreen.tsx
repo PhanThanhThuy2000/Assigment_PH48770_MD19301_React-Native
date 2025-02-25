@@ -12,6 +12,7 @@ type RootParamList = {
     Cart: undefined;
     Detail: undefined;
     Favourite: undefined;
+    Payment: { totalPrice: number }; // Thêm kiểu dữ liệu số
 };
 type CartScreenNavigationProp = StackNavigationProp<RootParamList, 'Home'>;
 
@@ -53,12 +54,6 @@ export default function CartScreen() {
                         size: cartItem.size  // Giữ nguyên size từ API giỏ hàng
                     } : null;
                 }).filter(Boolean);
-
-                // const updatedCart = cartData.map((cartItem: any) => {
-                //     const product = productData.find((p: any) => p.id === cartItem.productId);
-                //     return product ? { ...product, quantity: cartItem.quantity, size: cartItem.size } : null;
-                // }).filter(Boolean);
-
                 setCartItems(updatedCart);
             } catch (error) {
                 console.error('Lỗi khi tải dữ liệu:', error);
@@ -66,8 +61,6 @@ export default function CartScreen() {
                 setLoading(false);
             }
         };
-
-
         fetchCartData();
     }, []);
 
@@ -130,9 +123,13 @@ export default function CartScreen() {
                 </View>
 
                 {/* Nút thanh toán */}
-                <TouchableOpacity style={styles.payButton}>
-                    <Text style={styles.payText}>Pay</Text>
-                </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.payButton}
+                onPress={() => navigation.navigate('Payment', { totalPrice })}
+            >
+                <Text style={styles.payText}>Pay</Text>
+            </TouchableOpacity>
+
         </SafeAreaView>
     );
 }

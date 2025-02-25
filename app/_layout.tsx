@@ -11,13 +11,22 @@ import SettingScreen from './screens/SettingScreen';
 import OrderHistoryScreen from './screens/OrderHistoryScreen';
 import EditAccountScreen from './screens/EditAccountScreen';
 import AppScreen from './app';
-import AdminScreen from './screens/admin/AdminProduct';
+import PaymentScreen from './screens/Payment';
+// Admin
+
+import AdminProductScreen from './screens/admin/AdminProductScreen';
+import AdminDashboardScreen from './screens/admin/AdminDashboardScreen';
+import AdminCategoryScreen from './screens/admin/AdminCategoryScreen';
+
+
+import Admin from './screens/admin/AdminDashboardScreen';
+
 
 const Stack = createStackNavigator();
 
 export default function RootLayout() {
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator initialRouteName="AdminDashboard">
       <Stack.Screen name="App" component={AppScreen} options={{ headerShown: false }} />
       <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
@@ -28,7 +37,13 @@ export default function RootLayout() {
       <Stack.Screen name="Setting" component={SettingScreen} options={{ headerShown: false }} />
       <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} options={{ headerShown: false }} />
       <Stack.Screen name="EditAccount" component={EditAccountScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Admin" component={AdminScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Payment" component={PaymentScreen} options={{ headerShown: false }} />
+
+      {/* Admin */}
+      <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="AdminProduct" component={AdminProductScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="AdminCategory" component={AdminCategoryScreen} options={{ headerShown: false }} />
+
     </Stack.Navigator>
   );
 }

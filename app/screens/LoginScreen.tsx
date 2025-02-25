@@ -13,8 +13,9 @@ type RootParamList = {
     ResetPass: undefined;
     Welcome: undefined;
     Detail: undefined;
-    Admin: undefined;
+    AdminProduct: undefined;
     App: undefined;
+    AdminDashboard: undefined
 };
 type LoginScreenNavigationProp = StackNavigationProp<RootParamList, 'Login'>;
 
@@ -39,7 +40,7 @@ export default function LoginScreen() {
                 if (user.role === 1) {
                     navigation.replace('App');
                 } else if (user.role === 2) {
-                    navigation.replace('Admin'); // Đảm bảo rằng bạn đã thêm màn hình 'Admin' vào navigation
+                    navigation.replace('AdminDashboard'); // Đảm bảo rằng bạn đã thêm màn hình 'Admin' vào navigation
                 } else {
                     Alert.alert('Access Denied', 'Your account does not have the required permissions.');
                 }
@@ -57,7 +58,7 @@ export default function LoginScreen() {
             <View style={styles.container}>
                 <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
                 <Text style={styles.title}>Welcome to Lungo !!</Text>
-                <Text style={styles.subtitle}>Login to Continue</Text>
+                <Text style={styles.subtitle}>Login successful Lungo</Text>
 
                 <TextInput
                     style={styles.input}
@@ -104,7 +105,7 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#1a1a1a', padding: 20, justifyContent: 'center', alignItems: 'center' },
-    safeArea: { flex: 1, backgroundColor: 'white' },
+    safeArea: { flex: 1, backgroundColor: '#1a1a1a' },
     logo: { width: 100, height: 100, marginBottom: 20 },
     title: { fontSize: 24, color: '#fff', fontWeight: 'bold', marginBottom: 5 },
     subtitle: { fontSize: 16, color: '#aaa', marginBottom: 20 },
